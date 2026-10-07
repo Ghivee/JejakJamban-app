@@ -106,4 +106,4 @@ Estimasi berikut adalah perkiraan rekayasa untuk MVP dan dapat berubah setelah a
 - Android `assembleDebug`: berhasil; APK tersedia di `build/app/outputs/flutter-apk/app-debug.apk`.
 - `php artisan test --compact`: 11 test lulus, 39 assertions; Laravel Pint `--test` lulus.
 - HTTP API lokal: GET daftar 200, POST valid 201, GET detail 200, PUT 200, DELETE 200, POST invalid 422.
-- Postman collection JSON valid. Docker build/deployment belum dapat divalidasi karena Docker CLI dan kredensial hosting tidak tersedia.
+- Postman collection JSON valid; `render.yaml` berhasil diparse dan memuat service Docker serta database PostgreSQL yang diharapkan. Docker image/deployment tetap belum dapat diuji karena Docker CLI dan kredensial hosting tidak tersedia.
