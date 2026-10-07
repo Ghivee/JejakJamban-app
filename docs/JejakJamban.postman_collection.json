@@ -1,0 +1,140 @@
+{
+  "info": {
+    "_postman_id": "01af5dc2-a7d5-4fbb-9510-2831497f1db0",
+    "name": "JejakJamban REST API",
+    "description": "Uji API Laravel. Ganti baseUrl dan kredensial dengan environment milik sendiri; token disimpan sebagai collection variable lokal.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000/api" },
+    { "key": "email", "value": "demo@jejakjamban.local" },
+    { "key": "password", "value": "ChangeThisDemoPassword!" },
+    { "key": "token", "value": "" },
+    { "key": "logId", "value": "" },
+    { "key": "clientId", "value": "4c66fa02-c920-4337-a202-6364961b0c02" }
+  ],
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{email}}\",\"password\":\"{{password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Login berhasil', function () { pm.response.to.have.status(200); });",
+            "pm.collectionVariables.set('token', pm.response.json().token);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "GET - Daftar Jejak",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/logs"
+      }
+    },
+    {
+      "name": "POST - Tambah Jejak",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"client_id\":\"{{clientId}}\",\"bristol_type\":4,\"volume\":\"normal\",\"duration_min\":6,\"color\":\"brown\",\"sensations\":[\"tuntas\"],\"note\":\"Jejak demo\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/logs"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('clientId', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Jejak dibuat (atau client_id idempoten)', function () { pm.expect([200, 201]).to.include(pm.response.code); });",
+              "pm.collectionVariables.set('logId', pm.response.json().data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET - Detail Jejak",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/logs/{{logId}}"
+      }
+    },
+    {
+      "name": "PUT - Ubah Jejak",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "PUT",
+        "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"bristol_type\":3,\"note\":\"Jejak demo diperbarui\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/logs/{{logId}}"
+      }
+    },
+    {
+      "name": "POST - Validasi tipe Bristol",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"bristol_type\":9}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/logs"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Validasi mengembalikan 422', function () { pm.response.to.have.status(422); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "DELETE - Hapus Jejak",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "DELETE",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/logs/{{logId}}"
+      }
+    }
+  ]
+}
