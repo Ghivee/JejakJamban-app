@@ -18,14 +18,14 @@ Sumber utama: **TUGAS DEPLOYMENT APLIKASI WEB DAN SELULER**, mata kuliah Sistem 
 
 | Requirement tugas | Kebutuhan SRS terkait | Modul/file implementasi |
 |---|---|---|
-| T-01 | FR-2.1, FR-2.2, FR-2.6; §9.1, §9.6 | Laravel/Docker di `backend/`, blueprint `render.yaml`, instruksi deploy di `README.md`; deployment/URL online belum tersedia |
+| T-01 | FR-2.1, FR-2.2, FR-2.6; §9.1, §9.6 | Laravel/Docker di `backend/`, blueprint `render.yaml`, source di GitHub dan instruksi deploy di `README.md`; deployment/URL online belum tersedia |
 | T-02 | FR-2.1, FR-2.2, FR-2.4; kamus data §9.4 | Migration, model, demo sintetis di `backend/database/` dan `backend/app/`; backend tests lulus |
 | T-03 | FR-2.1, FR-2.2, FR-2.4 | `backend/routes/api.php`, controller, FormRequest, Resource, dan Flutter repository untuk CRUD |
 | T-04 | FR-2.2, FR-2.4, FR-2.6; NFR-P2 | Validasi Laravel/response JSON; `backend/tests/Feature/Api/`; HTTP lokal terverifikasi (200/201, invalid 422) |
 | T-05 | FR-2.6, NFR-SEC1–SEC4 | `backend/.env.example`, `.gitignore`, `render.yaml`, `backend/Dockerfile`; Flutter `--dart-define=API_BASE_URL=...`; secret production belum tersedia |
 | T-06 | FR-2.1, FR-2.2, FR-2.4, FR-2.6; S-05–S-07 | `lib/core/network/`, `lib/features/log/`, API repository dan layar log; APK debug berhasil, URL production belum diuji |
 | T-07 | FR-2.1, FR-2.4, FR-2.6; AC-1, AC-2 | `docs/JejakJamban.postman_collection.json`, feature tests, tabel hasil HTTP lokal, checklist bukti; screenshot/tes hosting belum ada |
-| T-08 | NFR-M1–M4; §15.1–15.3 | `README.md`, `docs/PLAN.md`, `docs/CHANGELOG-KONFLIK.md`, draft `docs/LAPORAN-DEPLOYMENT.md`; PDF final/video belum ada |
+| T-08 | NFR-M1–M4; §15.1–15.3 | Source di GitHub, `README.md`, `docs/PLAN.md`, `docs/CHANGELOG-KONFLIK.md`, draft `docs/LAPORAN-DEPLOYMENT.md`; PDF final/video belum ada |
 | T-09 | §9.1, §9.6–9.7; NFR-SEC | Alur request/config backend pada `README.md` dan draft laporan |
 
 ## 3. Konflik tugas dan SRS
@@ -34,9 +34,9 @@ Sumber utama: **TUGAS DEPLOYMENT APLIKASI WEB DAN SELULER**, mata kuliah Sistem 
 |---|---|---|---|
 | Backend | Laravel REST API dan database hosting | Supabase Auth/Postgres/Edge Functions (§2.1, §9.1) | **Tugas menang:** Laravel menjadi satu-satunya backend API untuk deliverable ini. Tidak menambahkan Supabase yang akan menggandakan sumber data dan bertentangan dengan arsitektur wajib. |
 | Operasi API | Wajib uji CRUD pada resource aplikasi | Log BAB bersifat privat, dapat diedit/dihapus (FR-2.4) | CRUD log menggunakan Sanctum bearer token, validasi server, dan query dibatasi ke pemilik. |
-| Deployment publik | Wajib ada URL backend internet dan Flutter memakai URL itu | SRS berorientasi backend Supabase; tidak menetapkan hosting Laravel | Tugas menang. Dockerfile dan blueprint hosting disiapkan, tetapi tidak ada akun hosting/repository remote; belum ada deployment atau URL yang boleh diklaim aktif. |
+| Deployment publik | Wajib ada URL backend internet dan Flutter memakai URL itu | SRS berorientasi backend Supabase; tidak menetapkan hosting Laravel | Tugas menang. Dockerfile/blueprint tersedia dan source dipush ke GitHub; resource hosting belum dibuat sehingga belum ada deployment atau URL aktif. |
 | Backend praktikum sebelumnya | Gunakan aplikasi Laravel dari praktikum; tidak perlu membuat baru jika sudah memenuhi syarat | SRS tidak menentukan source praktikum | Tidak ada source Laravel pada direktori kerja saat analisis. Asumsi: buat backend JejakJamban baru yang memenuhi kontrak tugas, bukan mengganti project lama yang tidak tersedia. |
-| Format pengumpulan | Laporan PDF, link, screenshot, video 5–10 menit | SRS meminta dokumentasi aplikasi | README dan draft laporan teknis tersedia; bukti yang memerlukan akun/rekaman asli tidak dibuat-buat dan tetap pending. |
+| Format pengumpulan | Laporan PDF, link, screenshot, video 5–10 menit | SRS meminta dokumentasi aplikasi | Repository remote tersedia di `https://github.com/Ghivee/JejakJamban-app`; README dan draft laporan teknis tersedia. PDF, screenshot, dan video aktual tetap pending. |
 
 ## 4. Cakupan MVP
 
@@ -51,7 +51,7 @@ Sumber utama: **TUGAS DEPLOYMENT APLIKASI WEB DAN SELULER**, mata kuliah Sistem 
 
 **Ditunda atau dibatasi, dengan alasan**
 
-- Backend online pada hosting, URL publik, bukti deployment/database/Postman, repository remote, laporan PDF beridentitas, dan video: menunggu akun hosting/database, identitas mahasiswa, akses repository, serta bukti aktual. Tidak boleh direkayasa atau dianggap selesai.
+- Backend online pada hosting, URL publik, bukti deployment/database/Postman, laporan PDF beridentitas, dan video: menunggu akun hosting/database, identitas mahasiswa, serta bukti aktual. Repository remote sudah tersedia; bukti lain tidak boleh direkayasa atau dianggap selesai.
 - Login sosial/email terverifikasi, admin 2FA/moderasi, liga multi-pengguna, teman/squad, dan push notification produksi: perlu layanan/konfigurasi server dan kredensial yang tidak tersedia; persyaratan tugas deployment lebih dulu.
 - Peta komunitas, unggah foto fasilitas, premium, integrasi HealthKit/Health Connect, dan panel admin penuh: fitur SRS noninti yang memerlukan API/izin/layanan eksternal; setelah MVP dan waktu/akses tersedia.
 - XP server-side, 40 badge, quest personalisasi, freeze/repair streak, skor liga penuh, insight korelasi 14 hari, PDF laporan dokter dan export/hapus akun lengkap: pekerjaan lanjutan setelah jalur backend dan operasi data inti stabil. Aturan yang menyentuh kesehatan tetap informatif, bukan diagnosis.
@@ -64,7 +64,7 @@ Penundaan fitur SRS Must di atas adalah pembatasan MVP, bukan pengubahan require
 1. Tidak ditemukan project aplikasi atau backend sebelumnya pada direktori kerja ketika rencana dibuat; project baru boleh disiapkan bila source praktikum tidak tersedia.
 2. Resource CRUD adalah `bowel_logs` (Jejak), bukan contoh generik `products`; data kesehatan harus privat per pengguna.
 3. Laravel dan Flutter dapat dipasang/dijalankan pada mesin pengguna; versi SDK/dependensi aktual diverifikasi sebelum memilih implementasi.
-4. Tidak ada kredensial, akun hosting, database production, URL domain, identitas/NIM/kelas, ataupun link repository remote yang diberikan. Nilai sensitif tidak akan ditanyakan atau ditulis ke source; deployment dan evidence membutuhkan pemilik untuk mengisi/melakukan langkah akun.
+4. Link repository GitHub diberikan kemudian: `https://github.com/Ghivee/JejakJamban-app`; source lokal dipush ke branch `main`. Tidak ada kredensial/akun hosting, database production, URL domain, atau identitas/NIM/kelas. Nilai sensitif tidak ditulis ke source; deployment dan evidence memerlukan pemilik untuk melakukan langkah akun.
 5. Lingkungan pengembangan lokal boleh menggunakan localhost; hasil production wajib menerima URL HTTPS melalui konfigurasi, dan tidak boleh mengklaim pengujian online sebelum benar-benar berhasil.
 6. Data/demo yang disediakan sintetis dan tidak berisi informasi kesehatan nyata.
 7. Bahasa antarmuka MVP adalah Bahasa Indonesia. Tema dan panduan visual merujuk SRS §7.5; klaim/konten medis memakai disclaimer SRS §10.3.
@@ -96,7 +96,7 @@ Estimasi berikut adalah perkiraan rekayasa untuk MVP dan dapat berubah setelah a
 | T-05 | **Sebagian** | Contoh environment, konfigurasi URL Flutter, Docker/Render, dan release HTTPS guard disediakan; secret/domain/database production belum dikonfigurasi. |
 | T-06 | **Sebagian** | Source Flutter terhubung ke Laravel CRUD dan APK debug berhasil dibuat. URL online belum tersedia untuk diuji. |
 | T-07 | **Sebagian** | CRUD HTTP lokal, Postman collection, automated tests, dan tabel hasil lokal tersedia. Screenshot API/deployment/database serta tes URL online pending. |
-| T-08 | **Sebagian** | README dan draft laporan dengan hasil/kendala tersedia. PDF beridentitas, screenshot, link repo/URL aktif, dan video 5–10 menit belum tersedia. |
+| T-08 | **Sebagian** | Repository GitHub, README, dan draft laporan dengan hasil/kendala tersedia. PDF beridentitas, screenshot, URL production, dan video 5–10 menit belum tersedia. |
 | T-09 | **Selesai** | Alur `Request → Route → Controller → Model/Database → Response` dan konfigurasi lokal/deploy didokumentasikan. |
 
 ### Validasi akhir

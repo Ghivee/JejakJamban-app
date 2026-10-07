@@ -7,10 +7,11 @@ Catatan lokal menggunakan SQLite terenkripsi di Android/iOS; saat pengguna
 masuk, antrean sinkronisasi dikirim ke API Laravel dengan bearer token.
 
 > **Catatan status:** source, API lokal, migration, CRUD, validasi, dan tes
-> otomatis sudah tersedia. Backend **belum dideploy ke internet** karena akun
-> hosting/database dan repository remote tidak tersedia di workspace. Karena
-> itu URL production, screenshot deployment/Postman/database, dan video demo
-> belum tersedia; jangan mengumpulkan URL contoh sebagai URL aktif.
+> otomatis sudah tersedia; source juga sudah dipush ke
+> [repository GitHub](https://github.com/Ghivee/JejakJamban-app). Backend
+> **belum dideploy ke internet** karena layanan hosting belum dibuat. URL
+> production, screenshot deployment/Postman/database, dan video demo belum
+> tersedia; jangan mengumpulkan URL contoh sebagai URL aktif.
 
 JejakJamban bukan alat diagnosis atau pengganti nasihat tenaga kesehatan
 profesional. Fitur unggah foto feses tidak disediakan. Log kesehatan tidak
@@ -133,29 +134,47 @@ memakai penyimpanan in-memory untuk demo, bukan penyimpanan persisten.
 
 ## Menyiapkan deployment
 
-`render.yaml` dan `backend/Dockerfile` menyiapkan Laravel pada Render dengan
-PostgreSQL, `APP_KEY` yang dibuat di hosting, HTTPS, dan migration saat container
-mulai. Langkah umum:
+Source sudah tersedia di [GitHub](https://github.com/Ghivee/JejakJamban-app).
+[`render.yaml`](./render.yaml) dan [`backend/Dockerfile`](./backend/Dockerfile)
+menyiapkan Laravel + PostgreSQL melalui Render Blueprint.
 
-1. Buat repository GitHub/GitLab dan push source (pastikan `.env`, `vendor/`,
-   database SQLite lokal, token, dan kredensial tidak terikut).
-2. Buat akun hosting; hubungkan repository dan konfigurasi layanan dari
-   `render.yaml` atau gunakan Dockerfile.
-3. Tinjau versi PHP, domain/HTTPS, kapasitas dan masa berlaku paket database
-   gratis terkini. Paket gratis dapat tidur, membatasi resource, atau menghapus
-   database setelah masa tertentu.
-4. Pastikan `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` unik yang hanya
-   dibuat di hosting, `DB_CONNECTION=pgsql`, dan `DB_URL` database production.
-   Jangan seed demo ke production.
-5. Jalankan migration dan pastikan document root mengarah ke `public/`.
-6. Uji `/up`, login, GET/POST/PUT/DELETE dan validasi melalui URL HTTPS aktif.
-   Setelah itu build Flutter dengan URL yang sama.
-7. Rekam screenshot aktual deployment, database, Postman/Insomnia, dan Flutter;
-   masukkan URL aktif serta link repository ke laporan. Tidak ada bukti yang
-   dibuat atau disimulasikan di source ini.
+### Deploy database dan API di Render
 
-Deployment memerlukan akun dan konfigurasi milik pemilik tugas; source tidak
-mengandung token hosting atau kredensial.
+1. Buat/login ke akun Render, lalu pilih **New → Blueprint**.
+2. Hubungkan GitHub, pilih repository `Ghivee/JejakJamban-app` dan branch
+   `main`. Blueprint membaca `render.yaml` di root untuk membuat web service
+   Laravel (Docker) dan PostgreSQL di region yang sama.
+3. Render meminta nilai rahasia `APP_KEY`. Dari folder `backend`, siapkan
+   dependency Composer lalu jalankan `php artisan key:generate --show`; salin
+   nilai `base64:...` yang dihasilkan ke prompt secret Render. Simpan key hanya
+   di Render—jangan masukkan ke source, chat, screenshot, atau `.env` yang
+   dipush.
+4. Tinjau resource dan biaya/plan yang ditampilkan, lalu pilih **Apply**.
+   Tunggu database berstatus `Available` dan deployment selesai. `DB_URL`
+   ditautkan ke connection string database secara otomatis; entrypoint
+   container menjalankan `php artisan migrate --force`. Seeder demo tidak
+   dijalankan di production.
+5. Buka URL service yang diberikan Render, tambahkan `/up`, dan pastikan
+   health check berhasil. Gunakan URL aktual yang ditampilkan dashboard.
+6. Uji login, CRUD, dan validasi dengan Postman. Untuk Flutter jalankan:
+
+   ```powershell
+   flutter build apk --release --dart-define=API_BASE_URL=https://URL-SERVICE-AKTUAL.onrender.com/api
+   ```
+
+   Pasang APK dan uji sinkronisasi di perangkat.
+7. Simpan screenshot aktual service, database, Postman, dan Flutter online.
+   Isi URL di [`docs/LAPORAN-DEPLOYMENT.md`](./docs/LAPORAN-DEPLOYMENT.md),
+   lengkapi identitas, lalu ekspor laporan final ke PDF dan rekam video demo.
+
+**Peringatan paket gratis:** menurut dokumentasi Render saat ini, PostgreSQL
+Free dibatasi 1 GB dan kedaluwarsa **30 hari setelah dibuat**. Setelah masa
+grace 14 hari, database dan datanya dihapus bila tidak di-upgrade. Free web
+service juga tidur setelah 15 menit tanpa trafik. Paket gratis cocok untuk
+demo/praktikum singkat, bukan produksi atau data kesehatan nyata. Untuk data
+yang perlu disimpan, pilih PostgreSQL berbayar/penyedia dengan masa simpan dan
+backup yang sesuai. Selalu tinjau harga dan kebijakan terbaru di dashboard
+sebelum membuat resource.
 
 ## Tes dan pemeriksaan
 
@@ -180,7 +199,7 @@ alias, tab Beranda/Insight/Jejak/Liga/Peta, log Bristol 1–7, detail log, riway
 edit/hapus, check-in dan air lokal, grafik distribusi, peringatan informatif,
 SQLCipher, API Laravel, seed lokal, dan tes.
 
-Belum tersedia: URL backend internet/repository remote, email OTP dan social
+Belum tersedia: URL backend internet, email OTP dan social
 login, XP server-side/quest/badge produksi, liga/leaderboard backend, fitur
 teman/squad, peta komunitas, notifikasi produksi, ekspor PDF, hapus akun, panel
 admin/moderasi, screenshot deployment, laporan PDF final, dan video demo.
