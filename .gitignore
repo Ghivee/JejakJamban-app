@@ -50,6 +50,7 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+/backend/dist/
 
 # Assignment inputs remain local reference material
 /Pertemuan 7 - Deploy App.pdf

@@ -24,7 +24,7 @@ leaderboard. Aplikasi bukan alat diagnosis medis.
 ```text
 Flutter (Android/iOS)
   → HTTPS REST API (Laravel + Sanctum)
-  → PostgreSQL production / SQLite lokal
+  → MySQL InfinityFree / SQLite lokal
 ```
 
 Untuk setiap log: `Request → routes/api.php → FormRequest validation →
@@ -32,20 +32,18 @@ BowelLogController → BowelLog model → database → JSON Resource`.
 
 ## 4. Deployment backend
 
-- Platform: [ISI setelah memilih hosting]
+- Platform: InfinityFree free hosting [ISI nama akun/tipe domain setelah dibuat]
 - URL backend/API: [ISI URL HTTPS AKTIF]
 - Repository: https://github.com/Ghivee/JejakJamban-app
 - PHP/Laravel: PHP 8.3, Laravel 12
-- Database: [ISI TIPE DAN NAMA INSTANCE TANPA KREDENSIAL]
-- Environment production: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`
-  dan `DB_URL` disimpan pada secret/environment hosting. File `.env` tidak
-  dipublikasikan.
-- Migration: `php artisan migrate --force`; jangan jalankan seeder demo di
-  production.
-- Document root Apache: `backend/public`.
-- Proses yang digunakan: Dockerfile Apache pada `backend/Dockerfile`; blueprint
-  opsional di `render.yaml`. Validasi kuota/massa aktif layanan gratis perlu
-  dilakukan di akun hosting.
+- Database: MySQL InfinityFree [ISI nama database; tanpa password]
+- Environment production: `.env` privat dengan `APP_ENV=production`,
+  `APP_DEBUG=false`, `APP_KEY` dan credential MySQL. Jangan commit `.env`.
+- Schema: import `backend/infinityfree/schema.sql` via phpMyAdmin; hosting tidak
+  menyediakan SSH/Artisan sehingga `php artisan migrate` tidak dijalankan.
+- Document root hosting: `htdocs`; root `.htaccess` rewrite ke `public/`.
+- Proses yang digunakan: paket ZIP production + FTP. Batas versi PHP/extensions,
+  inode/space, dan ketersediaan harus diverifikasi di control panel akun.
 
 ## 5. Pengujian API lokal
 
