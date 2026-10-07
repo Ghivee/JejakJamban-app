@@ -34,7 +34,7 @@ BowelLogController → BowelLog model → database → JSON Resource`.
 
 - Platform: [ISI setelah memilih hosting]
 - URL backend/API: [ISI URL HTTPS AKTIF]
-- Repository: [ISI LINK]
+- Repository: https://github.com/Ghivee/JejakJamban-app
 - PHP/Laravel: PHP 8.3, Laravel 12
 - Database: [ISI TIPE DAN NAMA INSTANCE TANPA KREDENSIAL]
 - Environment production: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`
