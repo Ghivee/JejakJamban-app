@@ -8,12 +8,49 @@
   "variable": [
     { "key": "baseUrl", "value": "http://127.0.0.1:8000/api" },
     { "key": "email", "value": "demo@jejakjamban.local" },
+    { "key": "alias", "value": "" },
     { "key": "password", "value": "ChangeThisDemoPassword!" },
     { "key": "token", "value": "" },
     { "key": "logId", "value": "" },
     { "key": "clientId", "value": "4c66fa02-c920-4337-a202-6364961b0c02" }
   ],
   "item": [
+    {
+      "name": "Register - buat akun baru",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"alias\":\"{{alias}}\",\"email\":\"{{email}}\",\"password\":\"{{password}}\",\"password_confirmation\":\"{{password}}\",\"age\":25,\"health_data_consent\":true}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/register"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);",
+              "pm.collectionVariables.set('alias', 'jj' + suffix);",
+              "pm.collectionVariables.set('email', 'jj' + suffix + '@example.com');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Akun dibuat', function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set('token', pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
     {
       "name": "Login",
       "request": {

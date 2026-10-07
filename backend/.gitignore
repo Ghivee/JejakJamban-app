@@ -5,6 +5,7 @@
 .env.production
 /.env.*
 !/.env.example
+!/.env.infinityfree.example
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -22,6 +23,7 @@
 /storage/pail
 /vendor
 /database/*.sqlite
+/dist
 Homestead.json
 Homestead.yaml
 Thumbs.db

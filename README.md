@@ -40,11 +40,13 @@ backend/
   database/               Migration, seeder sintetis
   routes/api.php           API JSON terautentikasi
   tests/                   Feature tests Laravel
-  Dockerfile               Image deploy Apache/PHP + PostgreSQL
+  infinityfree/            SQL schema dan rewrite untuk upload FTP
+  scripts/                 Skrip paket production InfinityFree
 docs/
   PLAN.md
   CHANGELOG-KONFLIK.md
   LAPORAN-DEPLOYMENT.md    Draft laporan dan checklist bukti
+  DEPLOY-INFINITYFREE.md   Panduan hosting InfinityFree
   JejakJamban.postman_collection.json
 ```
 
@@ -132,49 +134,30 @@ Android Keystore melalui `flutter_secure_storage`. Data tamu dipisahkan dari
 data akun dan **tidak otomatis dipindahkan** saat login. Versi web hanya
 memakai penyimpanan in-memory untuk demo, bukan penyimpanan persisten.
 
-## Menyiapkan deployment
+## Deployment InfinityFree
 
-Source sudah tersedia di [GitHub](https://github.com/Ghivee/JejakJamban-app).
-[`render.yaml`](./render.yaml) dan [`backend/Dockerfile`](./backend/Dockerfile)
-menyiapkan Laravel + PostgreSQL melalui Render Blueprint.
+Source tersedia di [GitHub](https://github.com/Ghivee/JejakJamban-app). Panduan
+langkah demi langkah untuk setup MySQL, import schema di phpMyAdmin, mengisi
+`.env` aman, membuat ZIP production dan upload lewat FTP tersedia di
+[`docs/DEPLOY-INFINITYFREE.md`](./docs/DEPLOY-INFINITYFREE.md).
 
-### Deploy database dan API di Render
+InfinityFree free hosting tidak menyediakan SSH, terminal, atau Artisan.
+Siapkan database dari [`backend/infinityfree/schema.sql`](./backend/infinityfree/schema.sql)
+dan buat paket production dari PowerShell:
 
-1. Buat/login ke akun Render, lalu pilih **New → Blueprint**.
-2. Hubungkan GitHub, pilih repository `Ghivee/JejakJamban-app` dan branch
-   `main`. Blueprint membaca `render.yaml` di root untuk membuat web service
-   Laravel (Docker) dan PostgreSQL di region yang sama.
-3. Render meminta nilai rahasia `APP_KEY`. Dari folder `backend`, siapkan
-   dependency Composer lalu jalankan `php artisan key:generate --show`; salin
-   nilai `base64:...` yang dihasilkan ke prompt secret Render. Simpan key hanya
-   di Render—jangan masukkan ke source, chat, screenshot, atau `.env` yang
-   dipush.
-4. Tinjau resource dan biaya/plan yang ditampilkan, lalu pilih **Apply**.
-   Tunggu database berstatus `Available` dan deployment selesai. `DB_URL`
-   ditautkan ke connection string database secara otomatis; entrypoint
-   container menjalankan `php artisan migrate --force`. Seeder demo tidak
-   dijalankan di production.
-5. Buka URL service yang diberikan Render, tambahkan `/up`, dan pastikan
-   health check berhasil. Gunakan URL aktual yang ditampilkan dashboard.
-6. Uji login, CRUD, dan validasi dengan Postman. Untuk Flutter jalankan:
+```powershell
+Set-Location backend
+.\scripts\prepare-infinityfree.ps1
+```
 
-   ```powershell
-   flutter build apk --release --dart-define=API_BASE_URL=https://URL-SERVICE-AKTUAL.onrender.com/api
-   ```
-
-   Pasang APK dan uji sinkronisasi di perangkat.
-7. Simpan screenshot aktual service, database, Postman, dan Flutter online.
-   Isi URL di [`docs/LAPORAN-DEPLOYMENT.md`](./docs/LAPORAN-DEPLOYMENT.md),
-   lengkapi identitas, lalu ekspor laporan final ke PDF dan rekam video demo.
-
-**Peringatan paket gratis:** menurut dokumentasi Render saat ini, PostgreSQL
-Free dibatasi 1 GB dan kedaluwarsa **30 hari setelah dibuat**. Setelah masa
-grace 14 hari, database dan datanya dihapus bila tidak di-upgrade. Free web
-service juga tidur setelah 15 menit tanpa trafik. Paket gratis cocok untuk
-demo/praktikum singkat, bukan produksi atau data kesehatan nyata. Untuk data
-yang perlu disimpan, pilih PostgreSQL berbayar/penyedia dengan masa simpan dan
-backup yang sesuai. Selalu tinjau harga dan kebijakan terbaru di dashboard
-sebelum membuat resource.
+Hasil ZIP di `backend/dist/jejakjamban-infinityfree-upload.zip`; unggah isi
+arsip ke `htdocs`. Unggah file `backend/.env` secara terpisah melalui FTP setelah
+mengisi credential akun—jangan commit atau mengirimkannya. Detail syarat versi
+PHP, `htdocs`, `.htaccess`, phpMyAdmin, dan tes API ada di panduan deployment.
+InfinityFree menyatakan hosting free tanpa masa kedaluwarsa tetap, tetapi
+account perlu menerima beberapa hit tiap bulan dan tetap tunduk pada fair-use/
+resource limits. Baca [panduan deployment lengkap](./docs/DEPLOY-INFINITYFREE.md)
+sebelum upload.
 
 ## Tes dan pemeriksaan
 

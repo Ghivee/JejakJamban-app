@@ -18,11 +18,11 @@ Sumber utama: **TUGAS DEPLOYMENT APLIKASI WEB DAN SELULER**, mata kuliah Sistem 
 
 | Requirement tugas | Kebutuhan SRS terkait | Modul/file implementasi |
 |---|---|---|
-| T-01 | FR-2.1, FR-2.2, FR-2.6; §9.1, §9.6 | Laravel/Docker di `backend/`, blueprint `render.yaml`, source di GitHub dan instruksi deploy di `README.md`; deployment/URL online belum tersedia |
-| T-02 | FR-2.1, FR-2.2, FR-2.4; kamus data §9.4 | Migration, model, demo sintetis di `backend/database/` dan `backend/app/`; backend tests lulus |
+| T-01 | FR-2.1, FR-2.2, FR-2.6; §9.1, §9.6 | Laravel di `backend/`, panduan InfinityFree, rewrite `htdocs`, paket ZIP FTP, dan source GitHub; deployment/URL online belum tersedia |
+| T-02 | FR-2.1, FR-2.2, FR-2.4; kamus data §9.4 | Migration Laravel, model, seeder sintetis lokal, dan SQL import MySQL `backend/infinityfree/schema.sql`; backend tests lulus |
 | T-03 | FR-2.1, FR-2.2, FR-2.4 | `backend/routes/api.php`, controller, FormRequest, Resource, dan Flutter repository untuk CRUD |
 | T-04 | FR-2.2, FR-2.4, FR-2.6; NFR-P2 | Validasi Laravel/response JSON; `backend/tests/Feature/Api/`; HTTP lokal terverifikasi (200/201, invalid 422) |
-| T-05 | FR-2.6, NFR-SEC1–SEC4 | `backend/.env.example`, `.gitignore`, `render.yaml`, `backend/Dockerfile`; Flutter `--dart-define=API_BASE_URL=...`; secret production belum tersedia |
+| T-05 | FR-2.6, NFR-SEC1–SEC4 | `backend/.env.infinityfree.example`, `.gitignore`, paket upload yang menolak `.env`/SQLite; Flutter `--dart-define=API_BASE_URL=...`; credential production belum tersedia |
 | T-06 | FR-2.1, FR-2.2, FR-2.4, FR-2.6; S-05–S-07 | `lib/core/network/`, `lib/features/log/`, API repository dan layar log; APK debug berhasil, URL production belum diuji |
 | T-07 | FR-2.1, FR-2.4, FR-2.6; AC-1, AC-2 | `docs/JejakJamban.postman_collection.json`, feature tests, tabel hasil HTTP lokal, checklist bukti; screenshot/tes hosting belum ada |
 | T-08 | NFR-M1–M4; §15.1–15.3 | Source di GitHub, `README.md`, `docs/PLAN.md`, `docs/CHANGELOG-KONFLIK.md`, draft `docs/LAPORAN-DEPLOYMENT.md`; PDF final/video belum ada |
@@ -34,7 +34,7 @@ Sumber utama: **TUGAS DEPLOYMENT APLIKASI WEB DAN SELULER**, mata kuliah Sistem 
 |---|---|---|---|
 | Backend | Laravel REST API dan database hosting | Supabase Auth/Postgres/Edge Functions (§2.1, §9.1) | **Tugas menang:** Laravel menjadi satu-satunya backend API untuk deliverable ini. Tidak menambahkan Supabase yang akan menggandakan sumber data dan bertentangan dengan arsitektur wajib. |
 | Operasi API | Wajib uji CRUD pada resource aplikasi | Log BAB bersifat privat, dapat diedit/dihapus (FR-2.4) | CRUD log menggunakan Sanctum bearer token, validasi server, dan query dibatasi ke pemilik. |
-| Deployment publik | Wajib ada URL backend internet dan Flutter memakai URL itu | SRS berorientasi backend Supabase; tidak menetapkan hosting Laravel | Tugas menang. Dockerfile/blueprint tersedia dan source dipush ke GitHub; resource hosting belum dibuat sehingga belum ada deployment atau URL aktif. |
+| Deployment publik | Wajib ada URL backend internet dan Flutter memakai URL itu | SRS berorientasi backend Supabase; tidak menetapkan hosting Laravel | Tugas menang. InfinityFree dipilih sebagai target free shared hosting. Deploy butuh akun user dan langkah manual phpMyAdmin/FTP; belum ada deployment atau URL aktif. |
 | Backend praktikum sebelumnya | Gunakan aplikasi Laravel dari praktikum; tidak perlu membuat baru jika sudah memenuhi syarat | SRS tidak menentukan source praktikum | Tidak ada source Laravel pada direktori kerja saat analisis. Asumsi: buat backend JejakJamban baru yang memenuhi kontrak tugas, bukan mengganti project lama yang tidak tersedia. |
 | Format pengumpulan | Laporan PDF, link, screenshot, video 5–10 menit | SRS meminta dokumentasi aplikasi | Repository remote tersedia di `https://github.com/Ghivee/JejakJamban-app`; README dan draft laporan teknis tersedia. PDF, screenshot, dan video aktual tetap pending. |
 
@@ -76,7 +76,7 @@ Estimasi berikut adalah perkiraan rekayasa untuk MVP dan dapat berubah setelah a
 | Fase | Cakupan | Hasil |
 |---|---|---:|
 | 0. Analisis | Baca tugas/SRS, tetapkan matriks dan konflik | Selesai |
-| 1. Fondasi + prioritas deployment | Struktur Flutter/Laravel, env, tema/routing, database, API CRUD, seed, Docker/deploy template | Fondasi lokal selesai; deploy publik pending |
+| 1. Fondasi + prioritas deployment | Struktur Flutter/Laravel, env, tema/routing, database, API CRUD, seed, paket deployment InfinityFree | Fondasi dan paket/manual schema lokal siap; deploy publik pending |
 | 2. Auth & profil | Login/alias/onboarding/consent dan pembatasan data per pemilik | Auth dasar dan API token; profil/OTP lengkap tertunda |
 | 3. Fitur inti | Log cepat/lengkap, check-in/air/riwayat/kalender, sinkronisasi/offline | Log, check-in, air, riwayat, antrean offline selesai sebagian |
 | 4. Gamifikasi | XP/level/streak/badge/quest dengan tes logika dan desain anti-spam | Aturan domain utama dites; persistensi/server/quest/badge tertunda |
@@ -89,11 +89,11 @@ Estimasi berikut adalah perkiraan rekayasa untuk MVP dan dapat berubah setelah a
 
 | ID | Status akhir | Bukti / alasan |
 |---|---|---|
-| T-01 | **Sebagian** | Laravel production config, Dockerfile, dan `render.yaml` tersedia; hosting belum dibuat dan URL publik belum diverifikasi. |
-| T-02 | **Selesai (lokal)** | Migration, model, seeder sintetis dan SQLite tersedia; 11 backend tests/39 assertions lulus. PostgreSQL produksi belum dijalankan. |
+| T-01 | **Sebagian** | Laravel, instruksi InfinityFree, ZIP builder dan source GitHub tersedia; pemilik belum membuat hosting account, jadi URL online belum diuji. |
+| T-02 | **Selesai (lokal)** | Migration Laravel, seeder sintetis, SQLite, serta SQL schema MySQL untuk import phpMyAdmin tersedia; 11 backend tests/39 assertions lulus. DB produksi belum di-import. |
 | T-03 | **Selesai (lokal)** | Endpoint list/detail/create/update/delete terlindungi; HTTP lokal menghasilkan 200/201. |
 | T-04 | **Selesai (lokal)** | Bristol invalid menghasilkan HTTP 422; automated tests memeriksa validasi, auth, ownership, idempotensi, dan CRUD. |
-| T-05 | **Sebagian** | Contoh environment, konfigurasi URL Flutter, Docker/Render, dan release HTTPS guard disediakan; secret/domain/database production belum dikonfigurasi. |
+| T-05 | **Sebagian** | Contoh `.env` InfinityFree, exclusion secret/SQLite pada skrip ZIP, Flutter URL config dan release HTTPS guard disediakan; domain/database/credential production belum dikonfigurasi. |
 | T-06 | **Sebagian** | Source Flutter terhubung ke Laravel CRUD dan APK debug berhasil dibuat. URL online belum tersedia untuk diuji. |
 | T-07 | **Sebagian** | CRUD HTTP lokal, Postman collection, automated tests, dan tabel hasil lokal tersedia. Screenshot API/deployment/database serta tes URL online pending. |
 | T-08 | **Sebagian** | Repository GitHub, README, dan draft laporan dengan hasil/kendala tersedia. PDF beridentitas, screenshot, URL production, dan video 5–10 menit belum tersedia. |
@@ -106,4 +106,4 @@ Estimasi berikut adalah perkiraan rekayasa untuk MVP dan dapat berubah setelah a
 - Android `assembleDebug`: berhasil; APK tersedia di `build/app/outputs/flutter-apk/app-debug.apk`.
 - `php artisan test --compact`: 11 test lulus, 39 assertions; Laravel Pint `--test` lulus.
 - HTTP API lokal: GET daftar 200, POST valid 201, GET detail 200, PUT 200, DELETE 200, POST invalid 422.
-- Postman collection JSON valid; `render.yaml` berhasil diparse dan memuat service Docker serta database PostgreSQL yang diharapkan. Docker image/deployment tetap belum dapat diuji karena Docker CLI dan kredensial hosting tidak tersedia.
+- Postman collection JSON valid. ZIP InfinityFree berhasil dibuat dengan dependency production, bebas `.env`/SQLite, dan `php artisan route:list` boot dari hasil ekstrak. SQL tercatat memuat seluruh 6 migration; import phpMyAdmin, tes MySQL/FTP, dan URL online menunggu akun hosting.
