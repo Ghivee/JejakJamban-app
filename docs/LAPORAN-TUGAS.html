@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Laporan Tugas Deployment JejakJamban</title>
+<style>
+body {
+  font-family: 'Calibri', 'Arial', sans-serif;
+  font-size: 11pt; line-height: 1.5; color: #1a1a1a;
+  max-width: 800px; margin: 0 auto; padding: 40px 50px;
+}
+h1 { font-size: 18pt; text-align: center; margin: 0 0 6px; color: #0f766e; }
+h2 { font-size: 14pt; color: #0f766e; border-bottom: 2px solid #0f766e; padding-bottom: 4px; margin: 28px 0 12px; }
+h3 { font-size: 12pt; color: #134e4a; margin: 18px 0 8px; }
+p { margin: 8px 0; text-align: justify; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+th, td { border: 1px solid #94a3b8; padding: 5px 8px; text-align: left; }
+th { background: #0f766e; color: #fff; font-weight: bold; }
+tr:nth-child(even) { background: #f0fdfa; }
+.subtitle { text-align: center; color: #475569; font-size: 11pt; margin-bottom: 6px; }
+.meta { border: 1px solid #94a3b8; padding: 12px 18px; background: #f8fafc; margin: 16px 0; font-size: 10.5pt; }
+.meta p { margin: 4px 0; }
+pre {
+  background: #1e293b; color: #e2e8f0; padding: 12px 16px;
+  font-family: 'Consolas', monospace; font-size: 9pt;
+  overflow-x: auto; white-space: pre-wrap; border-radius: 4px; margin: 8px 0;
+}
+.ok { background: #dcfce7; border-left: 4px solid #16a34a; padding: 8px 14px; margin: 10px 0; }
+.note { background: #fef9c3; border-left: 4px solid #eab308; padding: 8px 14px; margin: 10px 0; font-size: 10pt; }
+.footer { text-align: center; color: #94a3b8; font-size: 9pt; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>LAPORAN TUGAS DEPLOYMENT</h1>
+<p class="subtitle"><strong>JejakJamban</strong> — Aplikasi Pencatat Jejak Kesehatan Pencernaan</p>
+<p class="subtitle">Sistem Web dan Seluler (Mobile) Lanjutan</p>
+
+<div class="meta">
+<p><strong>Nama:</strong> Galang Ahmad Ghifari</p>
+<p><strong>NIM:</strong> ______________________________</p>
+<p><strong>Kelas:</strong> ______________________________</p>
+<p><strong>Tanggal:</strong> 14 Oktober 2026</p>
+<p><strong>Repository:</strong> https://github.com/Ghivee/JejakJamban-app</p>
+</div>
+
+<h2>1. Pendahuluan</h2>
+<p>JejakJamban adalah aplikasi mobile untuk mencatat jejak kesehatan pencernaan — khususnya tipe Bristol — guna pemantauan pribadi. Pengguna dapat bekerja offline; setelah login, data disinkronkan ke backend REST API. Aplikasi ini bukan alat diagnosis medis.</p>
+<p>Tugas ini meliputi deploy backend Laravel 12 ke hosting publik (InfinityFree), import database MySQL, integrasi URL produksi ke Flutter, dan pembangunan APK release.</p>
+
+<h2>2. Arsitektur Sistem</h2>
+<pre>Flutter App (Android)
+    │  HTTPS + Bearer Token
+    ▼
+Laravel 12 + Sanctum (InfinityFree, PHP 8.4)
+    │  PDO
+    ▼
+MySQL (InfinityFree)</pre>
+<p>Alur request: HTTP Request → public/index.php → routes/api.php → Middleware (throttle/auth) → FormRequest Validation → Controller → Eloquent Model → MySQL → JSON Response.</p>
+
+<h2>3. Deployment Backend</h2>
+
+<h3>3.1 Platform</h3>
+<table>
+<tr><th>Item</th><th>Keterangan</th></tr>
+<tr><td>Hosting</td><td>InfinityFree (gratis)</td></tr>
+<tr><td>Domain</td><td>jejakjamban.site.je</td></tr>
+<tr><td>URL API</td><td>https://jejakjamban.site.je/api</td></tr>
+<tr><td>PHP</td><td>8.4.25 (pdo_mysql aktif)</td></tr>
+<tr><td>Framework</td><td>Laravel 12 + Sanctum</td></tr>
+<tr><td>Database</td><td>MySQL — if0_43113401_1 @ sql106.infinityfree.com</td></tr>
+<tr><td>Deploy</td><td>FTP (ftpupload.net) — 6.280 file</td></tr>
+</table>
+
+<h3>3.2 Langkah Deploy</h3>
+<ol>
+<li><strong>Paket production.</strong> Composer install --no-dev, generate .env produksi (APP_ENV=production, APP_DEBUG=false, APP_KEY, credential MySQL).</li>
+<li><strong>Perbaikan .htaccess.</strong> Rewrite rule asli menyebabkan infinite loop (HTTP 500). Ditambah kondisi RewriteCond agar hanya me-rewrite sekali ke folder public/.</li>
+<li><strong>Upload via FTP.</strong> Seluruh project (termasuk vendor/) di-upload ke htdocs/ menggunakan curl batch, ±45 menit untuk 6.280 file.</li>
+<li><strong>Import database.</strong> Skema SQL dijalankan via script PHP di server hosting. DNS sql106.infinityfree.com tidak resolve dari jaringan lokal, tapi resolve dari dalam jaringan InfinityFree. Hasil: 14 statement OK, 11 tabel terbentuk.</li>
+<li><strong>Perbaikan middleware.</strong> Route API yang tidak terautentikasi sebelumnya membalas HTTP 500 (Route [login] not defined). Diperbaiki dengan konfigurasi redirectGuestsTo dan shouldRenderJsonWhen di bootstrap/app.php sehingga selalu membalas JSON 401.</li>
+<li><strong>Smoke test.</strong> 17 skenario pengujian dijalankan terhadap URL produksi.</li>
+</ol>
+
+<h3>3.3 Struktur Database</h3>
+<table>
+<tr><th>Tabel</th><th>Fungsi</th></tr>
+<tr><td>users</td><td>Akun pengguna (alias, email, usia, persetujuan)</td></tr>
+<tr><td>bowel_logs</td><td>Data jejak/tipe Bristol</td></tr>
+<tr><td>personal_access_tokens</td><td>Token Sanctum untuk autentikasi API</td></tr>
+<tr><td>sessions, cache, cache_locks</td><td>Sesi dan cache framework</td></tr>
+<tr><td>jobs, job_batches, failed_jobs</td><td>Queue framework</td></tr>
+<tr><td>password_reset_tokens</td><td>Token reset password</td></tr>
+<tr><td>migrations</td><td>Catatan migrasi</td></tr>
+</table>
+
+<h2>4. Pengujian API Produksi</h2>
+<p>Pengujian dilakukan terhadap <code>https://jejakjamban.site.je/api</code> menggunakan PHP curl yang dijalankan di server hosting. Hasil: <strong>17/17 PASS</strong>.</p>
+
+<table>
+<tr><th>No</th><th>Method</th><th>Endpoint</th><th>Skenario</th><th>Expected</th><th>Actual</th><th>Status</th></tr>
+<tr><td>1</td><td>POST</td><td>/api/register</td><td>Registrasi valid</td><td>201 + token</td><td>201 + token</td><td>PASS</td></tr>
+<tr><td>2</td><td>POST</td><td>/api/register</td><td>Tanpa alias/age</td><td>422</td><td>422 + errors</td><td>PASS</td></tr>
+<tr><td>3</td><td>POST</td><td>/api/register</td><td>Usia 15 tanpa parental consent</td><td>422</td><td>422</td><td>PASS</td></tr>
+<tr><td>4</td><td>POST</td><td>/api/login</td><td>Login valid</td><td>200 + token</td><td>200 + token</td><td>PASS</td></tr>
+<tr><td>5</td><td>GET</td><td>/api/me</td><td>Tanpa token</td><td>401</td><td>401</td><td>PASS</td></tr>
+<tr><td>6</td><td>GET</td><td>/api/me</td><td>Dengan token</td><td>200 + data</td><td>200 + data</td><td>PASS</td></tr>
+<tr><td>7</td><td>GET</td><td>/api/logs</td><td>Tanpa token</td><td>401</td><td>401</td><td>PASS</td></tr>
+<tr><td>8</td><td>POST</td><td>/api/logs</td><td>Tambah jejak (bristol 4)</td><td>201</td><td>201 + data</td><td>PASS</td></tr>
+<tr><td>9</td><td>POST</td><td>/api/logs</td><td>Bristol 9 (invalid)</td><td>422</td><td>422</td><td>PASS</td></tr>
+<tr><td>10</td><td>GET</td><td>/api/logs</td><td>Daftar jejak</td><td>200 + list</td><td>200 + list</td><td>PASS</td></tr>
+<tr><td>11</td><td>GET</td><td>/api/logs/1</td><td>Detail jejak</td><td>200</td><td>200 + data</td><td>PASS</td></tr>
+<tr><td>12</td><td>GET</td><td>/api/logs/999999</td><td>ID tidak ada</td><td>404</td><td>404</td><td>PASS</td></tr>
+<tr><td>13</td><td>PUT</td><td>/api/logs/1</td><td>Ubah tipe</td><td>200</td><td>200</td><td>PASS</td></tr>
+<tr><td>14</td><td>DELETE</td><td>/api/logs/1</td><td>Hapus jejak</td><td>200</td><td>200</td><td>PASS</td></tr>
+<tr><td>15</td><td>GET</td><td>/api/logs/1</td><td>Akses setelah hapus</td><td>404</td><td>404</td><td>PASS</td></tr>
+<tr><td>16</td><td>POST</td><td>/api/logout</td><td>Logout</td><td>200</td><td>200</td><td>PASS</td></tr>
+<tr><td>17</td><td>POST</td><td>/api/logout</td><td>Logout lagi</td><td>401</td><td>401</td><td>PASS</td></tr>
+</table>
+
+<div class="note">Catatan: Token yang digunakan saat pengujian sudah di-revoke dari database. Data uji sudah dihapus.</div>
+
+<h2>5. Integrasi Flutter</h2>
+
+<h3>5.1 Konfigurasi URL</h3>
+<p>URL API dibaca dari environment variable saat build time:</p>
+<pre>// lib/core/config/app_config.dart
+static const apiBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://10.0.2.2:8000/api', // emulator Android
+);</pre>
+<p>Build release mewajibkan URL HTTPS — AppConfig.validate() menolak localhost/10.0.2.2/non-HTTPS di release.</p>
+
+<h3>5.2 Build APK</h3>
+<pre>flutter build apk --release --dart-define=API_BASE_URL=https://jejakjamban.site.je/api</pre>
+<p>Hasil: APK release 66,9 MB dengan URL produksi ter-embed dan logo custom.</p>
+
+<h3>5.3 Perbaikan yang Dilakukan</h3>
+<table>
+<tr><th>Masalah</th><th>Perbaikan</th></tr>
+<tr><td>APK release tanpa izin INTERNET</td><td>Ditambahkan &lt;uses-permission android:name="android.permission.INTERNET"/&gt; di AndroidManifest.xml</td></tr>
+<tr><td>Nama app tidak konsisten</td><td>Seragamkan "JejakJamban" di AndroidManifest, Info.plist, pubspec.yaml, web manifest</td></tr>
+<tr><td>Deskripsi masih template</td><td>Ganti "A new Flutter project." dengan deskripsi aplikasi</td></tr>
+<tr><td>Tidak ada logo (icon Flutter default)</td><td>Buat logo custom: teal gradient + huruf "J" putih, semua ukuran Android/iOS/Web</td></tr>
+<tr><td>Komentar TODO di build.gradle.kts</td><td>Dihapus</td></tr>
+</table>
+
+<h2>6. Kendala dan Penyelesaian</h2>
+<table>
+<tr><th>No</th><th>Kendala</th><th>Penyelesaian</th></tr>
+<tr><td>1</td><td>Rewrite-loop .htaccess → HTTP 500</td><td>Tambah kondisi RewriteCond agar rewrite hanya sekali</td></tr>
+<tr><td>2</td><td>Server web InfinityFree down beberapa hari</td><td>Monitoring otomatis, tunggu server pulih</td></tr>
+<tr><td>3</td><td>DNS sql106.infinityfree.com tidak resolve dari lokal</td><td>Import DB via script PHP di server hosting</td></tr>
+<tr><td>4</td><td>Route API → 500 "Route [login] not defined"</td><td>Konfigurasi middleware redirectGuestsTo + shouldRenderJsonWhen</td></tr>
+<tr><td>5</td><td>Folder storage/framework/sessions tidak ada → 500</td><td>Buat folder via perintah MKD FTP</td></tr>
+<tr><td>6</td><td>APK release tanpa izin INTERNET</td><td>Tambah permission di AndroidManifest.xml (bug klasik Flutter)</td></tr>
+<tr><td>7</td><td>Token produksi bocor di file bukti git</td><td>Revoke token dari DB, scrub file, hapus data uji</td></tr>
+</table>
+
+<h2>7. Kesimpulan</h2>
+<div class="ok">
+<p>Backend Laravel 12 JejakJamban berhasil di-deploy ke InfinityFree dan berfungsi penuh:</p>
+<ul>
+<li>URL produksi aktif: https://jejakjamban.site.je (HTTPS)</li>
+<li>Health check /up merespons HTTP 200</li>
+<li>Database MySQL ter-import (11 tabel)</li>
+<li>17/17 skenario pengujian API PASS</li>
+<li>APK Flutter release berhasil di-build dengan URL produksi dan logo custom</li>
+</ul>
+</div>
+<p>Aplikasi siap digunakan: pengguna dapat mendaftar, login, dan mencatat jejak kesehatan pencernaan melalui aplikasi Flutter yang terhubung ke backend production.</p>
+
+<h2>8. Lampiran</h2>
+<table>
+<tr><th>File</th><th>Deskripsi</th></tr>
+<tr><td>dist/JejakJamban-release.apk</td><td>APK release Flutter (66,9 MB)</td></tr>
+<tr><td>docs/bukti-smoke-test-produksi.txt</td><td>Transkrip lengkap 17 pengujian</td></tr>
+<tr><td>backend/infinityfree/schema.sql</td><td>Skema database</td></tr>
+<tr><td>docs/JejakJamban.postman_collection.json</td><td>Collection Postman untuk testing manual</td></tr>
+</table>
+
+<p class="footer">Laporan tugas kuliah — Sistem Web dan Seluler (Mobile) Lanjutan<br>
+Seluruh pengujian dan deployment dilakukan secara nyata terhadap infrastruktur production.</p>
+
+</body>
+</html>

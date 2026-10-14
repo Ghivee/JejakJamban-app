@@ -1,11 +1,11 @@
 {
-    "name": "jejak_jamban",
-    "short_name": "jejak_jamban",
+    "name": "JejakJamban",
+    "short_name": "JejakJamban",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F766E",
+    "theme_color": "#0F766E",
+    "description": "Aplikasi pencatat jejak kesehatan pencernaan (tipe Bristol) dengan sinkronisasi cloud.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
