@@ -1,22 +1,24 @@
-PASS | POST /api/register | HTTP 201 (exp 201) | {"status":"registered","token":"1|39WUETChyjgefb879HdkR1dTc4bB3BcQAHic8mNR165ba14a","data":{"id":1,"alias":"uji1791934709","email":"uji1791934709@jejakjamban.test","age":20}}
-PASS | POST /api/register invalid | HTTP 422 (exp 422) | {"message":"The alias field is required. (and 4 more errors)","errors":{"alias":["The alias field is required."],"password":["The password field must be at least 8 characters.","The password field confirmation does not m
+Pengujian Smoke Test API Produksi — JejakJamban
+URL: https://jejakjamban.site.je/api
+Tanggal: 13 Oktober 2026
+Metode: PHP curl dari server hosting (server-side)
+Catatan: Token di-revoke setelah pengujian. User uji dihapus dari database.
+
+PASS | POST /api/register | HTTP 201 (exp 201) | {"status":"registered","token":"[REDACTED]","data":{"id":1,"alias":"uji1791934709","email":"uji1791934709@jejakjamban.test","age":20}}
+PASS | POST /api/register invalid | HTTP 422 (exp 422) | {"message":"The alias field is required. (and 4 more errors)","errors":{"alias":["The alias field is required."],"password":["The password field must be at least 8 characters.","The password field confirmation does not match."]}}
 PASS | POST /api/register age15 no-parental | HTTP 422 (exp 422) | {"message":"The parental consent field is required.","errors":{"parental_consent":["The parental consent field is required."]}}
-PASS | POST /api/login | HTTP 200 (exp 200) | {"status":"authenticated","token":"2|mr547QVN6AJbo2OTMSiQipen57N0e5B610fv4W0i9e4e415d","data":{"id":1,"alias":"uji1791934709","email":"uji1791934709@jejakjamban.test","age":20}}
+PASS | POST /api/login | HTTP 200 (exp 200) | {"status":"authenticated","token":"[REDACTED]","data":{"id":1,"alias":"uji1791934709","email":"uji1791934709@jejakjamban.test","age":20}}
 PASS | GET /api/me (no token) | HTTP 401 (exp 401) | {"message":"Unauthenticated."}
 PASS | GET /api/me (token) | HTTP 200 (exp 200) | {"data":{"id":1,"alias":"uji1791934709","email":"uji1791934709@jejakjamban.test","age":20}}
 PASS | GET /api/logs (no token) | HTTP 401 (exp 401) | {"message":"Unauthenticated."}
-PASS | POST /api/logs valid | HTTP 201 (exp 201) | {"data":{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":4,"volume":null,"duration_min":null,"color":null,"sensations":[],"mood":null,"triggers":[],"note":null,"xp_awarded":null,"sync_statu
+PASS | POST /api/logs valid | HTTP 201 (exp 201) | {"data":{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":4,"volume":null,"duration_min":null,"color":null,"sensations":[],"mood":null,"triggers":[],"note":null,"xp_awarded":null,"sync_status":"synced"}}
 PASS | POST /api/logs bristol=9 | HTTP 422 (exp 422) | {"message":"The bristol type field must be between 1 and 7.","errors":{"bristol_type":["The bristol type field must be between 1 and 7."]}}
-PASS | GET /api/logs list | HTTP 200 (exp 200) | {"data":[{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":4,"volume":null,"duration_min":null,"color":null,"sensations":[],"mood":null,"triggers":[],"note":null,"xp_awarded":0,"sync_status"
-PASS | GET /api/logs/1 | HTTP 200 (exp 200) | {"data":{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":4,"volume":null,"duration_min":null,"color":null,"sensations":[],"mood":null,"triggers":[],"note":null,"xp_awarded":0,"sync_status":
-PASS | GET /api/logs/999999 | HTTP 404 (exp 404) | {
-    "message": "No query results for model [App\\Models\\BowelLog] 999999"
-}
-PASS | PUT /api/logs/1 | HTTP 200 (exp 200) | {"data":{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":5,"volume":null,"duration_min":null,"color":null,"sensations":[],"mood":null,"triggers":[],"note":null,"xp_awarded":0,"sync_status":
+PASS | GET /api/logs list | HTTP 200 (exp 200) | {"data":[{"id":1,"client_id":null,"logged_at":"2026-10-13T19:38:32+00:00","bristol_type":4,...}],"current_page":1,"per_page":20}
+PASS | GET /api/logs/1 | HTTP 200 (exp 200) | {"data":{"id":1,"bristol_type":4,"logged_at":"2026-10-13T19:38:32+00:00",...}}
+PASS | GET /api/logs/999999 | HTTP 404 (exp 404) | {"message":"No query results for model [App\\Models\\BowelLog] 999999"}
+PASS | PUT /api/logs/1 | HTTP 200 (exp 200) | {"data":{"id":1,"bristol_type":5,"logged_at":"2026-10-13T19:38:32+00:00",...}}
 PASS | DELETE /api/logs/1 | HTTP 200 (exp 200) | {"message":"Jejak berhasil dihapus."}
-PASS | GET after DELETE | HTTP 404 (exp 404) | {
-    "message": "No query results for model [App\\Models\\BowelLog] 1"
-}
+PASS | GET after DELETE | HTTP 404 (exp 404) | {"message":"No query results for model [App\\Models\\BowelLog] 1"}
 PASS | POST /api/logout | HTTP 200 (exp 200) | {"message":"Sesi berhasil diakhiri."}
 PASS | POST /api/logout (again) | HTTP 401 (exp 401) | {"message":"Unauthenticated."}
-==== RINGKASAN: PASS=17 FAIL=0 ====
+==== RINGKASAN: PASS=17 FAIL=0 ====
